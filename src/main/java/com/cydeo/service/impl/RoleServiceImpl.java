@@ -2,7 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.RoleDTO;
 import com.cydeo.entity.Role;
-import com.cydeo.mapper.RoleMapper;
+import com.cydeo.mapper.MapperUtil;
 import com.cydeo.repository.RoleRepository;
 import com.cydeo.service.RoleService;
 import org.springframework.stereotype.Service;
@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
+    private final MapperUtil mapperUtil;
 
-    private final RoleMapper roleMapper;
-
-    public RoleServiceImpl(RoleRepository roleRepository, RoleMapper roleMapper) {
+    public RoleServiceImpl(RoleRepository roleRepository, MapperUtil mapperUtil) {
         this.roleRepository = roleRepository;
-        this.roleMapper = roleMapper;
+        this.mapperUtil = mapperUtil;
     }
+
 
     @Override
     public List<RoleDTO> listAllRoles() {
@@ -33,7 +33,7 @@ public class RoleServiceImpl implements RoleService {
         List<Role> roleList = roleRepository.findAll();//derived query-sql
 
         return roleList.stream()
-                .map(role -> roleMapper.convertToDto(role))
+                .map(role -> mapperUtil.convert(role,RoleDTO.class))
                 .collect(Collectors.toList());
 
         //return roleList;
@@ -44,7 +44,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO findById(Long id) {
-        return roleMapper.convertToDto( roleRepository.findById(id).get() );
-        //                            (              entity               )
+
+        Role role = roleRepository.findById(id).get();
+
+        return mapperUtil.convert(role,RoleDTO.class);
     }
 }

@@ -12,7 +12,6 @@ public interface UserService  {
     UserDTO findByUserName(String username); // username is unique : for update business logic
     void save(UserDTO userDTO);
     void deleteByUserName(String username);
-    UserDTO update(UserDTO user);
 
 
 }
