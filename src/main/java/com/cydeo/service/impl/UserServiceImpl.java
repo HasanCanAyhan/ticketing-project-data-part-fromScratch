@@ -1,48 +1,84 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.UserDTO;
+import com.cydeo.entity.User;
+import com.cydeo.mapper.UserMapper;
+import com.cydeo.repository.UserRepository;
 import com.cydeo.service.UserService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
-public class UserServiceImpl extends AbstractMapService<UserDTO,String> implements UserService {
+public class UserServiceImpl implements UserService {
+
+    //service impl ->> repo -->> DB
+
+    private  final  UserRepository userRepository;
+
+    private final UserMapper userMapper;
+
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+
 
     @Override
-    public UserDTO save(UserDTO user) {
-        return super.save(user.getUserName(),user);
+    public List<UserDTO> listAllUsers() {
+
+
+        List<User> userList = userRepository.findAll(Sort.by("firstName"));
+
+        return userList.stream().map(user -> userMapper.convertToDto(user) ).collect(Collectors.toList());
+
+
     }
 
     @Override
-    public UserDTO findById(String username) {
-        return super.findById(username);
+    public UserDTO findByUserName(String username) {
+
+        return userMapper.convertToDto(userRepository.findByUserName(username));
+
     }
 
     @Override
-    public List<UserDTO> findAll() {
-        return super.findAll();
+    public void save(UserDTO user) { // it is coming from UI-Part : save button
+       userRepository.save( userMapper.convertToEntity(user) );
     }
 
     @Override
-    public void deleteById(String username) {
-        super.deleteById(username);
+    public void deleteByUserName(String username) {
+
+        userRepository.deleteByUserName(username);
+
+
     }
 
     @Override
-    public void update(UserDTO object) {
-        super.update(object.getUserName(),object);
-    }
+    public UserDTO update(UserDTO user) { // updated user
 
-    @Override
-    public List<UserDTO> findManagers() {
-        return findAll().stream().filter(user -> user.getRole().getId() == 2).collect(Collectors.toList());
-    }
+        //find current user for id
 
-    @Override
-    public List<UserDTO> findEmployees() {
-        return findAll().stream().filter(user -> user.getRole().getId() == 3).collect(Collectors.toList());
-    }
+        User user1 = userRepository.findByUserName(user.getUserName()); // has id
 
+        //map update user dto to entity object
+        User convertedUser = userMapper.convertToEntity(user); // has no id
+
+        //set id to the converted object
+
+        convertedUser.setId(user1.getId());
+
+        //save the updated user in the db
+
+        userRepository.save(convertedUser);
+
+        return findByUserName(user.getUserName());
+
+
+
+    }
 }
