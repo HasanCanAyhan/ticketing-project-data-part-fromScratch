@@ -77,4 +77,15 @@ public class UserServiceImpl implements UserService {
         userRepository.save(foundUser);
 
     }
+
+    @Override
+    public List<UserDTO> listAllByRoleDescription(String description) {
+
+        List<User> users = userRepository.findAllByRoleDescription(description);
+
+        return users.stream()
+                .map(user -> mapperUtil.convert(user,UserDTO.class))
+                .collect(Collectors.toList());
+
+    }
 }
