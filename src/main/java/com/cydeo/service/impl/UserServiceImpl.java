@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> listAllUsers() {
 
-        List<User> users = userRepository.findAll(Sort.by("firstName"));
+        List<User> users = userRepository.findAllByIsDeletedOrderByFirstName(false);
 
         return users.stream().map(user -> mapperUtil.convert(user,UserDTO.class))
                 .collect(Collectors.toList());
@@ -35,16 +35,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO findByUserName(String username) {
-        return null;
+
+        User user = userRepository.findByUserName(username);
+
+        return mapperUtil.convert(user,UserDTO.class);
+
     }
 
     @Override
     public void save(UserDTO userDTO) {
 
+        User user = mapperUtil.convert(userDTO, User.class);
+        userRepository.save(user);
+
     }
 
     @Override
     public void deleteByUserName(String username) {
+
+    }
+
+    @Override
+    public void update(UserDTO userDTO) {
+
+        User user = userRepository.findByUserName(userDTO.getUserName());//id
+
+        User convertedUsr = mapperUtil.convert(userDTO, User.class);
+
+        convertedUsr.setId(user.getId());
+
+        userRepository.save(convertedUsr);
+
+
+    }
+
+    @Override
+    public void delete(String username) { //soft delete
+
+        User foundUser = userRepository.findByUserName(username);
+        foundUser.setIsDeleted(true);
+        userRepository.save(foundUser);
 
     }
 }
