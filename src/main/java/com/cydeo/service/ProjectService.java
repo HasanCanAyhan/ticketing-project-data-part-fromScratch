@@ -17,4 +17,6 @@ public interface ProjectService {
     ProjectDTO findByProjectCode(String projectCode);
 
     void update(ProjectDTO projectDTO);
+
+    List<ProjectDTO> showProjectsStatusRelatedToAssignedManager();
 }

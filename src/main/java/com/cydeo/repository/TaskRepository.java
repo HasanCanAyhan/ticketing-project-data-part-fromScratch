@@ -1,7 +1,10 @@
 package com.cydeo.repository;
 
+import com.cydeo.entity.Project;
 import com.cydeo.entity.Task;
+import com.cydeo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,5 +13,18 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task,Long> {
 
     List<Task> findAllByIsDeleted(Boolean deleted);
+
+
+    @Query("select t from Task t where t.project.projectCode = ?1 and t.taskStatus = 'COMPLETE' ")
+    List<Task> findAllUnfinishedTaskRelatedToProject(String projectCode);
+
+   @Query("select t from Task t where t.project.projectCode = ?1 and t.taskStatus <> 'COMPLETE' ")
+    List<Task> findAllFinishedTaskRelatedToProject(String projectCode);
+
+
+
+
+
+
 
 }
