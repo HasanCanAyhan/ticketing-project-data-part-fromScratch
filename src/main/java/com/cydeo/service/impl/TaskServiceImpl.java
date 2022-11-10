@@ -2,13 +2,16 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.ProjectDTO;
 import com.cydeo.dto.TaskDTO;
+import com.cydeo.dto.UserDTO;
 import com.cydeo.entity.Project;
 import com.cydeo.entity.Task;
+import com.cydeo.entity.User;
 import com.cydeo.enums.Status;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.repository.TaskRepository;
 import com.cydeo.service.ProjectService;
 import com.cydeo.service.TaskService;
+import com.cydeo.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,12 +26,14 @@ public class TaskServiceImpl implements TaskService {
     private final MapperUtil mapperUtil;
 
     private final ProjectService projectService;
+    private final UserService userService;
 
 
-    public TaskServiceImpl(TaskRepository taskRepository, MapperUtil mapperUtil, ProjectService projectService) {
+    public TaskServiceImpl(TaskRepository taskRepository, MapperUtil mapperUtil, ProjectService projectService, UserService userService) {
         this.taskRepository = taskRepository;
         this.mapperUtil = mapperUtil;
         this.projectService = projectService;
+        this.userService = userService;
     }
 
     @Override
@@ -80,9 +85,10 @@ public class TaskServiceImpl implements TaskService {
 
         if (task.isPresent()){
 
-            convertedTask.setTaskStatus(task.get().getTaskStatus());
-            convertedTask.setAssignedDate(task.get().getAssignedDate());
-            taskRepository.save(convertedTask);
+                convertedTask.setTaskStatus( taskDTO.getTaskStatus() == null ?  task.get().getTaskStatus() : taskDTO.getTaskStatus());
+                convertedTask.setAssignedDate(task.get().getAssignedDate());
+                taskRepository.save(convertedTask);
+
         }
 
     }
@@ -119,6 +125,34 @@ public class TaskServiceImpl implements TaskService {
 
 
 
+    }
+
+    @Override
+    public List<TaskDTO> listAllTasksByStatusIsNot(Status status) {
+
+        UserDTO userDTO = userService.findByUserName("john@employee.com");
+        User user = mapperUtil.convert(userDTO, User.class);
+
+        List<Task> taskList = taskRepository.findAllByAssignedEmployeeAndTaskStatusIsNot(user, status);
+
+        return taskList.stream()
+                .map(task -> mapperUtil.convert(task,TaskDTO.class))
+                .collect(Collectors.toList());
+
+
+    }
+
+    @Override
+    public List<TaskDTO> listAllTasksByStatus(Status status) {
+
+        UserDTO userDTO = userService.findByUserName("john@employee.com");
+        User user = mapperUtil.convert(userDTO, User.class);
+
+        List<Task> taskList = taskRepository.findAllByAssignedEmployeeAndTaskStatusIs(user,status);
+
+        return taskList.stream()
+                .map(task -> mapperUtil.convert(task,TaskDTO.class))
+                .collect(Collectors.toList());
     }
 
 
