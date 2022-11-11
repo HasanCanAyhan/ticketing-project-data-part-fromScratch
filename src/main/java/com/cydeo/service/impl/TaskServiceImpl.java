@@ -93,8 +93,6 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
-
-
     @Override
     public List<TaskDTO> findAllUnfinishedTaskRelatedToProject(String projectCode) {
 
@@ -130,8 +128,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskDTO> listAllTasksByStatusIsNot(Status status) {
 
-        UserDTO userDTO = userService.findByUserName("john@employee.com");
-        User user = mapperUtil.convert(userDTO, User.class);
+        UserDTO loggedInUser = userService.findByUserName("john@employee.com");//it will be later connected with Security part.
+        User user = mapperUtil.convert(loggedInUser, User.class);
 
         List<Task> taskList = taskRepository.findAllByAssignedEmployeeAndTaskStatusIsNot(user, status);
 
@@ -153,6 +151,28 @@ public class TaskServiceImpl implements TaskService {
         return taskList.stream()
                 .map(task -> mapperUtil.convert(task,TaskDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteByProject(ProjectDTO projectDTO) {
+        List<Task> taskList = taskRepository.findAllByProject(mapperUtil.convert(projectDTO,Project.class));
+
+        taskList.forEach(task -> deleteById(task.getId()));
+
+
+
+    }
+
+    @Override
+    public void completeByProject(ProjectDTO projectDTO) {
+        List<Task> taskList = taskRepository.findAllByProject(mapperUtil.convert(projectDTO,Project.class));
+
+        taskList.stream().map(task -> mapperUtil.convert(task,TaskDTO.class)).forEach(taskDTO -> {
+            taskDTO.setTaskStatus(Status.COMPLETE);
+            update(taskDTO);
+        });
+
+
     }
 
 

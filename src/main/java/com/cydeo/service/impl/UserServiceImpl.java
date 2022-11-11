@@ -74,6 +74,8 @@ public class UserServiceImpl implements UserService {
 
         User foundUser = userRepository.findByUserName(username);
         foundUser.setIsDeleted(true);
+        //bug fixing to able to use same username  while creating user after deleting
+        foundUser.setUserName(foundUser.getUserName() + "-" + foundUser.getId());
         userRepository.save(foundUser);
 
     }

@@ -1,7 +1,6 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.ProjectDTO;
-import com.cydeo.dto.TaskDTO;
 import com.cydeo.dto.UserDTO;
 import com.cydeo.entity.Project;
 import com.cydeo.entity.User;
@@ -61,6 +60,13 @@ public class ProjectServiceImpl implements ProjectService {
 
         project.setIsDeleted(true);
 
+        //bug fixing to able to use same project code while creating project after deleting
+        project.setProjectCode(project.getProjectCode() + "-" + project.getId());
+
+        //bug fixing: if we delete one project then we should delete also all tasks assigned to that project
+        taskService.deleteByProject(mapperUtil.convert(project,ProjectDTO.class));
+
+
         projectRepository.save(project);
 
     }
@@ -71,6 +77,9 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findByProjectCode(projectCode);
 
         project.setProjectStatus(Status.COMPLETE);
+
+        //bug fixing: if we complete one project, then we should complete als all tasks assigned to that project
+        taskService.completeByProject(mapperUtil.convert(project,ProjectDTO.class));
 
         projectRepository.save(project);
 
