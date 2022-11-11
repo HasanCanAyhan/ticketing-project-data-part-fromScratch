@@ -1,11 +1,14 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.dto.ProjectDTO;
+import com.cydeo.dto.TaskDTO;
 import com.cydeo.dto.UserDTO;
 import com.cydeo.entity.User;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.repository.UserRepository;
+import com.cydeo.service.ProjectService;
+import com.cydeo.service.TaskService;
 import com.cydeo.service.UserService;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +21,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
 
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil) {
+
+    private final ProjectService projectService;
+    private final TaskService taskService;
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, ProjectService projectService, TaskService taskService) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
+        this.projectService = projectService;
+        this.taskService = taskService;
     }
 
     @Override
@@ -73,10 +81,15 @@ public class UserServiceImpl implements UserService {
     public void delete(String username) { //soft delete
 
         User foundUser = userRepository.findByUserName(username);
-        foundUser.setIsDeleted(true);
-        //bug fixing to able to use same username  while creating user after deleting
-        foundUser.setUserName(foundUser.getUserName() + "-" + foundUser.getId());
-        userRepository.save(foundUser);
+
+        if (checkIfUserCanBeDeleted(foundUser)) {
+
+            foundUser.setIsDeleted(true);
+            //bug fixing to able to use same username  while creating user after deleting
+            foundUser.setUserName(foundUser.getUserName() + "-" + foundUser.getId());
+            userRepository.save(foundUser);
+
+        }
 
     }
 
@@ -90,4 +103,21 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
 
     }
+
+
+    private boolean checkIfUserCanBeDeleted(User user){
+
+        switch (user.getRole().getDescription()){
+            case "Manager":
+                List<ProjectDTO> projectDTOList = projectService.listAllNonCompletedByAssignedManager(mapperUtil.convert(user,UserDTO.class));
+                return projectDTOList.size() == 0;
+            case "Employee":
+                List<TaskDTO> taskDTOList = taskService.listAllNonCompletedByAssignedEmployee(mapperUtil.convert(user,UserDTO.class));
+                return taskDTOList.size() == 0;
+            default:
+                return true;
+        }
+
+    }
+
 }

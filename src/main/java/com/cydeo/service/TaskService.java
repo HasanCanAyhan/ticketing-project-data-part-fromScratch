@@ -2,6 +2,7 @@ package com.cydeo.service;
 
 import com.cydeo.dto.ProjectDTO;
 import com.cydeo.dto.TaskDTO;
+import com.cydeo.dto.UserDTO;
 import com.cydeo.entity.Project;
 import com.cydeo.enums.Status;
 
@@ -31,4 +32,6 @@ public interface TaskService {
     void deleteByProject(ProjectDTO projectDTO);
 
     void completeByProject(ProjectDTO projectDTO);
+
+    List<TaskDTO> listAllNonCompletedByAssignedEmployee(UserDTO assignedEmployee);
 }
