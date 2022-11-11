@@ -28,8 +28,9 @@ public class ProjectController {
 
         model.addAttribute("project", new ProjectDTO());
         model.addAttribute("managers", userService.listAllByRoleDescription("Manager"));
-        model.addAttribute("projects", projectService.listAllProjects());
-
+        //model.addAttribute("projects", projectService.listAllProjects());
+        //bug fixing: we want to see oly all projects belongs to one manager
+        model.addAttribute("projects", projectService.showProjectsStatusRelatedToAssignedManager());
         return "/project/create";
 
     }
@@ -41,7 +42,7 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("managers", userService.listAllByRoleDescription("Manager"));
-            model.addAttribute("projects", projectService.listAllProjects());
+            model.addAttribute("projects", projectService.showProjectsStatusRelatedToAssignedManager());
 
             return "/project/create";
 
@@ -74,7 +75,7 @@ public class ProjectController {
 
         model.addAttribute("project", projectService.findByProjectCode(projectCode));
         model.addAttribute("managers", userService.listAllByRoleDescription("Manager"));
-        model.addAttribute("projects", projectService.listAllProjects());
+        model.addAttribute("projects", projectService.showProjectsStatusRelatedToAssignedManager());
 
         return "/project/update";
 
@@ -86,7 +87,7 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("managers", userService.listAllByRoleDescription("Manager"));
-            model.addAttribute("projects", projectService.listAllProjects());
+            model.addAttribute("projects", projectService.showProjectsStatusRelatedToAssignedManager());
 
             return "/project/update";
 
