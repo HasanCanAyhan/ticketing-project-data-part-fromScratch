@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO findByUserName(String username) {
 
-        User user = userRepository.findByUserName(username);
+        User user = userRepository.findByUserNameAndIsDeleted(username,false);
 
         return mapperUtil.convert(user,UserDTO.class);
 
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(UserDTO userDTO) {
 
-        User user = userRepository.findByUserName(userDTO.getUserName());//id
+        User user = userRepository.findByUserNameAndIsDeleted(userDTO.getUserName(),false);//id
 
         User convertedUsr = mapperUtil.convert(userDTO, User.class);
 
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(String username) { //soft delete
 
-        User foundUser = userRepository.findByUserName(username);
+        User foundUser = userRepository.findByUserNameAndIsDeleted(username,false);
 
         if (checkIfUserCanBeDeleted(foundUser)) {
 
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> listAllByRoleDescription(String description) {
 
-        List<User> users = userRepository.findAllByRoleDescription(description);
+        List<User> users = userRepository.findAllByRoleDescriptionAndIsDeleted(description,false);
 
         return users.stream()
                 .map(user -> mapperUtil.convert(user,UserDTO.class))

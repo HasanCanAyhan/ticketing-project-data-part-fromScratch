@@ -9,10 +9,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     //get User based on username
 
-    User findByUserName(String username);
+    User findByUserNameAndIsDeleted(String username,Boolean deleted);
 
     List<User> findAllByIsDeletedOrderByFirstName(Boolean deleted);
 
-    List<User> findAllByRoleDescription(String description);
+    List<User> findAllByRoleDescriptionAndIsDeleted(String description,Boolean deleted);
 
 }
