@@ -9,6 +9,7 @@ import com.cydeo.repository.UserRepository;
 import com.cydeo.service.ProjectService;
 import com.cydeo.service.TaskService;
 import com.cydeo.service.UserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final ProjectService projectService;
     private final TaskService taskService;
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, ProjectService projectService, TaskService taskService) {
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, @Lazy ProjectService projectService, @Lazy TaskService taskService) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
         this.projectService = projectService;
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private boolean checkIfUserCanBeDeleted(User user){
+    private boolean checkIfUserCanBeDeleted(User user){ // fixing bugs : before we are deleting manager or employee, all projects/tasks are needed to be completed
 
         switch (user.getRole().getDescription()){
             case "Manager":
